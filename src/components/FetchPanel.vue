@@ -27,13 +27,23 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button 
-            type="primary" 
-            @click="handleStartFetch" 
-            :loading="status === 'running'"
-            :disabled="status === 'running'">
-            Start Fetching
-          </el-button>
+          <div class="btn-group">
+            <el-button 
+              type="primary" 
+              @click="handleStartFetch(false)" 
+              :loading="status === 'running' && !isResuming"
+              :disabled="status === 'running'">
+              Start Fetching
+            </el-button>
+            <el-button 
+              v-if="isResumable"
+              type="warning" 
+              @click="handleStartFetch(true)" 
+              :loading="status === 'running' && isResuming"
+              :disabled="status === 'running'">
+              Resume Fetching
+            </el-button>
+          </div>
         </el-form-item>
         <el-form-item>
           <el-popconfirm
@@ -67,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { startFetch, getFetchStatus, clearData } from '../utils/api'
 import { ElMessage } from 'element-plus'
 
@@ -78,7 +88,12 @@ const browse = ref('popular')
 const status = ref('idle')
 const progress = ref({ fetched: 0, total: 0 })
 const statusMessage = ref('')
-let pollInterval = null
+
+const currentPage = ref(1)
+const isResumable = ref(false)
+const isResuming = ref(false)
+
+const totalPages = computed(() => Math.ceil(fetchCount.value / 25))
 
 const progressPercentage = computed(() => {
   if (progress.value.total === 0) return 0
@@ -91,45 +106,50 @@ const progressStatus = computed(() => {
   return ''
 })
 
-const startPolling = () => {
-  if (pollInterval) clearInterval(pollInterval)
-  pollInterval = setInterval(async () => {
-    try {
-      const res = await getFetchStatus()
-      const data = res.data
-      
-      status.value = data.status
-      progress.value.fetched = data.fetched
-      progress.value.total = data.total
-      statusMessage.value = data.message
-
-      if (data.status === 'complete') {
-        clearInterval(pollInterval)
-        ElMessage.success('Fetch completed successfully')
-        emit('refresh')
-      } else if (data.status === 'error') {
-        clearInterval(pollInterval)
-        ElMessage.error(data.message || 'Error occurred during fetch')
-      }
-    } catch (e) {
-      console.error(e)
+const fetchNextPage = async () => {
+  if (status.value !== 'running') return
+  
+  try {
+    statusMessage.value = `Fetching page ${currentPage.value} of ${totalPages.value}...`
+    const res = await startFetch(fetchCount.value, 25, browse.value, currentPage.value)
+    const data = res.data
+    
+    progress.value.fetched = data.fetched
+    progress.value.total = fetchCount.value
+    
+    if (currentPage.value >= totalPages.value) {
+      status.value = 'complete'
+      statusMessage.value = 'Fetch completed successfully'
+      isResumable.value = false
+      isResuming.value = false
+      ElMessage.success('Fetch completed successfully')
+      emit('refresh')
+    } else {
+      currentPage.value++
+      // Respectful delay between API calls to avoid rate limiting
+      setTimeout(fetchNextPage, 1000)
     }
-  }, 2000)
+  } catch (error) {
+    status.value = 'error'
+    isResumable.value = true
+    isResuming.value = false
+    statusMessage.value = `Fetch failed on page ${currentPage.value}. You can resume.`
+    ElMessage.error(`Fetch failed on page ${currentPage.value}`)
+  }
 }
 
-const handleStartFetch = () => {
+const handleStartFetch = (isResume = false) => {
   status.value = 'running'
-  progress.value = { fetched: 0, total: fetchCount.value }
-  statusMessage.value = 'Starting fetch...'
+  isResuming.value = isResume
   
-  startFetch(fetchCount.value, 25).catch((error) => {
-    status.value = 'error'
-    statusMessage.value = 'Failed to start fetch process'
-    ElMessage.error('Failed to start fetch process')
-    if (pollInterval) clearInterval(pollInterval)
-  })
+  if (!isResume) {
+    currentPage.value = 1
+    progress.value = { fetched: 0, total: fetchCount.value }
+    isResumable.value = false
+  }
   
-  startPolling()
+  statusMessage.value = isResume ? `Resuming fetch from page ${currentPage.value}...` : 'Starting fetch...'
+  fetchNextPage()
 }
 
 const handleClearData = async () => {
@@ -139,14 +159,36 @@ const handleClearData = async () => {
     status.value = 'idle'
     progress.value = { fetched: 0, total: 0 }
     statusMessage.value = ''
+    isResumable.value = false
+    isResuming.value = false
     emit('refresh')
   } catch (error) {
     ElMessage.error('Failed to clear data')
   }
 }
 
-onUnmounted(() => {
-  if (pollInterval) clearInterval(pollInterval)
+onMounted(async () => {
+  try {
+    const res = await getFetchStatus()
+    if (res.data && res.data.status === 'running') {
+      // Fetch was running (possibly interrupted by a refresh)
+      // Restore page location and mark as resumable
+      status.value = 'error'
+      currentPage.value = Math.floor(res.data.fetched / 25) + 1
+      fetchCount.value = res.data.total
+      progress.value.fetched = res.data.fetched
+      progress.value.total = res.data.total
+      isResumable.value = true
+      statusMessage.value = `Previous fetch was interrupted at page ${currentPage.value - 1}. You can resume.`
+    } else if (res.data && res.data.status !== 'idle') {
+      status.value = res.data.status
+      progress.value.fetched = res.data.fetched
+      progress.value.total = res.data.total
+      statusMessage.value = res.data.message
+    }
+  } catch (e) {
+    console.error(e)
+  }
 })
 </script>
 
@@ -164,6 +206,10 @@ onUnmounted(() => {
 }
 .controls {
   margin-top: 20px;
+}
+.btn-group {
+  display: flex;
+  gap: 10px;
 }
 .progress-section {
   margin-top: 20px;

@@ -6,7 +6,7 @@ const api = axios.create({
 })
 
 export const fetchPlugins = (params) => api.get('/plugins', { params })
-export const startFetch = (total, perPage) => api.post('/fetch', { total, per_page: perPage })
+export const startFetch = (total, perPage, browse, page) => api.post('/fetch', { total, per_page: perPage, browse, page })
 export const getFetchStatus = () => api.get('/status')
 export const getStats = () => api.get('/stats')
 export const getChartData = (type) => api.get('/chart-data', { params: { type } })

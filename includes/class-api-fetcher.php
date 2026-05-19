@@ -126,6 +126,34 @@ class WPPQA_API_Fetcher {
 		];
 	}
 
+	public static function fetch_single_page( $page = 1, $per_page = 25, $browse = 'popular', $total = 100 ) {
+		self::update_status( 'running', ( $page - 1 ) * $per_page, $total, 'Fetching page ' . $page );
+
+		$response = self::fetch_plugins( $page, $per_page, $browse );
+
+		if ( is_wp_error( $response ) ) {
+			self::update_status( 'error', ( $page - 1 ) * $per_page, $total, 'API Error on page ' . $page . ': ' . $response->get_error_message() );
+			return $response;
+		}
+
+		$plugins_on_page = $response['plugins'];
+		$saved = self::process_and_save( $plugins_on_page );
+		$fetched = ( $page - 1 ) * $per_page + count( $plugins_on_page );
+
+		if ( $fetched >= $total || count( $plugins_on_page ) < $per_page ) {
+			self::update_status( 'complete', $fetched, $total, 'Fetch completed successfully' );
+		} else {
+			self::update_status( 'running', $fetched, $total, 'Fetched page ' . $page );
+		}
+
+		return [
+			'success' => true,
+			'fetched' => $fetched,
+			'saved'   => $saved,
+			'page'    => $page,
+		];
+	}
+
 	public static function update_status( $status, $fetched, $total, $message ) {
 		set_transient( 'wppqa_fetch_status', [
 			'status'  => $status,

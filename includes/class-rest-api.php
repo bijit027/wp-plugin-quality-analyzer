@@ -54,13 +54,16 @@ class WPPQA_REST_API {
 	public function endpoint_fetch( WP_REST_Request $request ) {
 		$total = $request->get_param( 'total' ) ? (int) $request->get_param( 'total' ) : 100;
 		$per_page = $request->get_param( 'per_page' ) ? (int) $request->get_param( 'per_page' ) : 25;
+		$page = $request->get_param( 'page' ) ? (int) $request->get_param( 'page' ) : 1;
+		$browse = $request->get_param( 'browse' ) ? sanitize_text_field( $request->get_param( 'browse' ) ) : 'popular';
 		
-		WPPQA_API_Fetcher::fetch_all_pages( $total, $per_page );
+		$result = WPPQA_API_Fetcher::fetch_single_page( $page, $per_page, $browse, $total );
 
-		return rest_ensure_response( [
-			'success' => true,
-			'message' => 'Fetch process completed'
-		] );
+		if ( is_wp_error( $result ) ) {
+			return new WP_Error( 'fetch_failed', $result->get_error_message(), [ 'status' => 500 ] );
+		}
+
+		return rest_ensure_response( $result );
 	}
 
 	public function endpoint_status() {
