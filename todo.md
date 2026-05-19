@@ -31,9 +31,9 @@
   - [x] Create Main Dashboard Shell in `src/App.vue`
   - [x] Register admin menu and enqueue Vite scripts in `includes/class-admin-pages.php`
 
-- [ ] **CHUNK 6:** Fetch Panel and Data Collection UI
-  - [ ] Build `src/components/FetchPanel.vue`
-  - [ ] Build `src/components/MetricsGrid.vue`
+- [x] **CHUNK 6:** Fetch Panel and Data Collection UI
+  - [x] Build `src/components/FetchPanel.vue`
+  - [x] Build `src/components/MetricsGrid.vue`
 
 - [ ] **CHUNK 7:** Charts and Data Table
   - [ ] Set up Global ChartJS config in `src/main.js`
