@@ -58,3 +58,11 @@ add_action( 'admin_enqueue_scripts', function( $hook ) {
 		WPPQA_Admin_Pages::enqueue_scripts( $hook );
 	}
 } );
+
+// Add type="module" to the Vite build script
+add_filter( 'script_loader_tag', function( $tag, $handle ) {
+	if ( 'wppqa-admin' === $handle ) {
+		return str_replace( '<script ', '<script type="module" ', $tag );
+	}
+	return $tag;
+}, 10, 2 );
