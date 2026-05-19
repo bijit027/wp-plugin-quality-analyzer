@@ -1,0 +1,35 @@
+/* wp-plugin-quality-analyzer/assets/css/admin.css */
+#wppqa-root {
+  margin-top: 20px;
+  margin-right: 20px;
+}
+
+.el-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+}
+
+.el-header {
+  background-color: white !important;
+  border-bottom: 1px solid #EBEEF5 !important;
+  border-radius: 8px 8px 0 0;
+}
+
+.el-header h2 {
+  color: #0073AA !important; /* WordPress Blue */
+}
+
+/* Dashicon spinner override */
+.dashicons-update.spin {
+  animation: dashicons-spin 1s infinite linear;
+}
+
+@keyframes dashicons-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Table */
+.el-table {
+  overflow-x: auto;
+}
