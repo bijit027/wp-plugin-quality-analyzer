@@ -109,17 +109,17 @@ class WPPQA_REST_API {
 		$data = [];
 
 		if ( $type === 'rating' ) {
-			$buckets = [ '1-2' => 0, '2-3' => 0, '3-4' => 0, '4-4.5' => 0, '4.5-5' => 0 ];
+			$buckets = [ '<2★' => 0, '2-3★' => 0, '3-4★' => 0, '4-4.5★' => 0, '4.5-5★' => 0 ];
 			foreach ( $plugins as $plugin ) {
 				$r = $plugin['rating'] / 20; // 100 to 5
-				if ( $r <= 2 ) $buckets['1-2']++;
-				elseif ( $r <= 3 ) $buckets['2-3']++;
-				elseif ( $r <= 4 ) $buckets['3-4']++;
-				elseif ( $r <= 4.5 ) $buckets['4-4.5']++;
-				else $buckets['4.5-5']++;
+				if ( $r <= 2 ) $buckets['<2★']++;
+				elseif ( $r <= 3 ) $buckets['2-3★']++;
+				elseif ( $r <= 4 ) $buckets['3-4★']++;
+				elseif ( $r <= 4.5 ) $buckets['4-4.5★']++;
+				else $buckets['4.5-5★']++;
 			}
 			$data = [
-				'labels' => [ '1–2 ★', '2–3 ★', '3–4 ★', '4–4.5 ★', '4.5–5 ★' ],
+				'labels' => [ '<2★', '2–3★', '3–4★', '4–4.5★', '4.5–5★' ],
 				'values' => array_values( $buckets )
 			];
 		} elseif ( $type === 'abandonment' ) {
@@ -164,18 +164,28 @@ class WPPQA_REST_API {
 				'values' => array_values( $buckets )
 			];
 		} elseif ( $type === 'health_score' ) {
-			$buckets = [ '0-20' => 0, '20-40' => 0, '40-60' => 0, '60-80' => 0, '80-100' => 0 ];
+			$buckets = [ '0-40' => 0, '40-60' => 0, '60-80' => 0, '80-100' => 0 ];
 			foreach ( $plugins as $plugin ) {
 				$h = $plugin['health_score'];
-				if ( $h <= 20 ) $buckets['0-20']++;
-				elseif ( $h <= 40 ) $buckets['20-40']++;
+				if ( $h <= 40 ) $buckets['0-40']++;
 				elseif ( $h <= 60 ) $buckets['40-60']++;
 				elseif ( $h <= 80 ) $buckets['60-80']++;
 				else $buckets['80-100']++;
 			}
 			$data = [
-				'labels' => [ '0–20 (Abandoned)', '20–40 (At Risk)', '40–60 (Moderate)', '60–80 (Good)', '80–100 (Healthy)' ],
+				'labels' => [ '0–40', '40–60', '60–80', '80–100' ],
 				'values' => array_values( $buckets )
+			];
+		} elseif ( $type === 'scatter' ) {
+			$scatter_data = [];
+			foreach ( $plugins as $plugin ) {
+				$scatter_data[] = [
+					'x' => (float) $plugin['resolution_rate'],
+					'y' => (float) $plugin['health_score']
+				];
+			}
+			$data = [
+				'points' => $scatter_data
 			];
 		}
 

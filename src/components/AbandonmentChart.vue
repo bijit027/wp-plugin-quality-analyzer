@@ -5,52 +5,55 @@
         <span>Plugin Maintenance Status</span>
       </div>
     </template>
-    <div v-if="loading" class="chart-loading">
-      <el-skeleton animated :rows="5" />
+    
+    <div style="height: 250px;">
+      <Doughnut v-if="chartData" :data="chartData" :options="chartOptions" />
     </div>
-    <div v-else>
-      <Doughnut :data="chartData" :options="chartOptions" />
-      <p class="research-note">
-        <strong>Research Note:</strong> Plugins not updated in 365+ days are classified as abandoned per the operational definition in this study.
-      </p>
+    
+    <div class="chart-legend">
+      <el-tag type="success" color="#1D9E75" effect="dark" style="border:none">Active</el-tag>
+      <el-tag type="danger" color="#A32D2D" effect="dark" style="border:none">Abandoned</el-tag>
     </div>
+    
+    <p class="research-note">
+      Plugins not updated in 365+ days are classified as abandoned per the operational definition in this study.
+    </p>
   </el-card>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { Doughnut } from 'vue-chartjs'
-import { getChartData } from '../utils/api'
 
-const loading = ref(true)
-const chartData = ref({
-  labels: [],
-  datasets: []
+const props = defineProps({
+  data: {
+    type: Object,
+    default: null
+  }
+})
+
+const chartData = computed(() => {
+  if (!props.data || !props.data.labels) return null
+  
+  return {
+    labels: props.data.labels,
+    datasets: [
+      {
+        backgroundColor: ['#1D9E75', '#A32D2D'],
+        hoverBackgroundColor: ['#1D9E75', '#A32D2D'],
+        data: props.data.values
+      }
+    ]
+  }
 })
 
 const chartOptions = {
   responsive: true,
-  maintainAspectRatio: false
-}
-
-onMounted(async () => {
-  try {
-    const res = await getChartData('abandonment')
-    chartData.value = {
-      labels: res.data.labels,
-      datasets: [
-        {
-          backgroundColor: ['#1D9E75', '#E24B4A'],
-          data: res.data.values
-        }
-      ]
-    }
-  } catch (e) {
-    console.error(e)
-  } finally {
-    loading.value = false
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false }
   }
-})
+}
 </script>
 
 <style scoped>
@@ -59,8 +62,15 @@ onMounted(async () => {
   color: #606266;
   margin-top: 15px;
   font-style: italic;
+  text-align: center;
 }
-.chart-loading {
-  padding: 20px;
+.card-header {
+  font-weight: bold;
+}
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
 }
 </style>

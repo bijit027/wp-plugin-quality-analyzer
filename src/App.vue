@@ -23,6 +23,7 @@
         <el-tab-pane label="Overview" name="overview">
           <FetchPanel @refresh="loadStats" />
           <MetricsGrid :stats="stats" />
+          <ChartsGrid />
         </el-tab-pane>
         <el-tab-pane label="Data Table" name="data-table">
           <PluginTable />
@@ -44,6 +45,7 @@ import { getStats } from './utils/api'
 
 import FetchPanel from './components/FetchPanel.vue'
 import MetricsGrid from './components/MetricsGrid.vue'
+import ChartsGrid from './components/ChartsGrid.vue'
 import PluginTable from './components/PluginTable.vue'
 import InsightsPanel from './components/InsightsPanel.vue'
 import ExportPanel from './components/ExportPanel.vue'

@@ -5,56 +5,53 @@
         <span>User Rating Distribution</span>
       </div>
     </template>
-    <div v-if="loading" class="chart-loading">
-      <el-skeleton animated :rows="5" />
+    
+    <div style="height: 250px;">
+      <Bar v-if="chartData" :data="chartData" :options="chartOptions" />
     </div>
-    <div v-else>
-      <Bar :data="chartData" :options="chartOptions" />
-      <p class="research-note">
-        <strong>Research Note:</strong> Higher concentration in 4.5–5 ★ range may indicate rating inflation — a known bias in plugin directories.
-      </p>
+    
+    <div class="chart-legend">
+      <el-tag type="primary" color="#378ADD" effect="dark" style="border:none">Rating buckets</el-tag>
     </div>
+    
+    <p class="research-note">
+      Higher concentration in 4.5–5 ★ range may indicate rating inflation — a known bias in plugin directories.
+    </p>
   </el-card>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { Bar } from 'vue-chartjs'
-import { getChartData } from '../utils/api'
 
-const loading = ref(true)
-const chartData = ref({
-  labels: [],
-  datasets: []
+const props = defineProps({
+  data: {
+    type: Object,
+    default: null
+  }
+})
+
+const chartData = computed(() => {
+  if (!props.data || !props.data.labels) return null
+  
+  return {
+    labels: props.data.labels,
+    datasets: [
+      {
+        backgroundColor: '#378ADD',
+        data: props.data.values
+      }
+    ]
+  }
 })
 
 const chartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
-    legend: { display: false },
-    title: { display: false }
+    legend: { display: false }
   }
 }
-
-onMounted(async () => {
-  try {
-    const res = await getChartData('rating')
-    chartData.value = {
-      labels: res.data.labels,
-      datasets: [
-        {
-          label: 'Plugins',
-          backgroundColor: '#378ADD',
-          data: res.data.values
-        }
-      ]
-    }
-  } catch (e) {
-    console.error(e)
-  } finally {
-    loading.value = false
-  }
-})
 </script>
 
 <style scoped>
@@ -63,8 +60,15 @@ onMounted(async () => {
   color: #606266;
   margin-top: 15px;
   font-style: italic;
+  text-align: center;
 }
-.chart-loading {
-  padding: 20px;
+.card-header {
+  font-weight: bold;
+}
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
 }
 </style>

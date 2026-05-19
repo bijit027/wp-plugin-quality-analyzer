@@ -5,55 +5,63 @@
         <span>Update Frequency Distribution</span>
       </div>
     </template>
-    <div v-if="loading" class="chart-loading">
-      <el-skeleton animated :rows="5" />
+    
+    <div style="height: 250px;">
+      <Bar v-if="chartData" :data="chartData" :options="chartOptions" />
     </div>
-    <div v-else>
-      <Bar :data="chartData" :options="chartOptions" />
+    
+    <div class="chart-legend">
+      <el-tag type="success" color="#1D9E75" effect="dark" style="border:none">≤90 days (Active)</el-tag>
+      <el-tag type="warning" color="#BA7517" effect="dark" style="border:none">91–180 (Slowing)</el-tag>
+      <el-tag type="danger" color="#E24B4A" effect="dark" style="border:none">181–365 (At Risk)</el-tag>
+      <el-tag type="danger" color="#A32D2D" effect="dark" style="border:none">>365 (Abandoned)</el-tag>
     </div>
   </el-card>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { Bar } from 'vue-chartjs'
-import { getChartData } from '../utils/api'
 
-const loading = ref(true)
-const chartData = ref({
-  labels: [],
-  datasets: []
+const props = defineProps({
+  data: {
+    type: Object,
+    default: null
+  }
+})
+
+const chartData = computed(() => {
+  if (!props.data || !props.data.labels) return null
+  
+  return {
+    labels: props.data.labels,
+    datasets: [
+      {
+        backgroundColor: ['#1D9E75', '#1D9E75', '#BA7517', '#E24B4A', '#A32D2D'],
+        data: props.data.values
+      }
+    ]
+  }
 })
 
 const chartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: { display: false }
   }
 }
-
-onMounted(async () => {
-  try {
-    const res = await getChartData('update_frequency')
-    chartData.value = {
-      labels: res.data.labels,
-      datasets: [
-        {
-          backgroundColor: ['#67C23A', '#85CE61', '#E6A23C', '#F3D19E', '#E24B4A'],
-          data: res.data.values
-        }
-      ]
-    }
-  } catch (e) {
-    console.error(e)
-  } finally {
-    loading.value = false
-  }
-})
 </script>
 
 <style scoped>
-.chart-loading {
-  padding: 20px;
+.card-header {
+  font-weight: bold;
+}
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
 }
 </style>
