@@ -140,17 +140,20 @@ class WPPQA_API_Fetcher {
 		$saved = self::process_and_save( $plugins_on_page );
 		$fetched = ( $page - 1 ) * $per_page + count( $plugins_on_page );
 
-		if ( $fetched >= $total || count( $plugins_on_page ) < $per_page ) {
+		$is_complete = ( $fetched >= $total || count( $plugins_on_page ) < $per_page );
+
+		if ( $is_complete ) {
 			self::update_status( 'complete', $fetched, $total, 'Fetch completed successfully' );
 		} else {
 			self::update_status( 'running', $fetched, $total, 'Fetched page ' . $page );
 		}
 
 		return [
-			'success' => true,
-			'fetched' => $fetched,
-			'saved'   => $saved,
-			'page'    => $page,
+			'success'     => true,
+			'fetched'     => $fetched,
+			'saved'       => $saved,
+			'page'        => $page,
+			'is_complete' => $is_complete,
 		];
 	}
 

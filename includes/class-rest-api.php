@@ -231,6 +231,7 @@ class WPPQA_REST_API {
 
 	public function endpoint_clear() {
 		WPPQA_Database::clear_all();
+		delete_transient( 'wppqa_fetch_status' );
 		return rest_ensure_response( [
 			'success' => true,
 			'message' => 'All data cleared'

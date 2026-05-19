@@ -9,31 +9,22 @@
       <div v-if="loading">
         <el-skeleton :rows="10" animated />
       </div>
-      <div v-else-if="stats.total === 0">
-        <el-empty description="No data collected yet. Go to the Fetch Panel to begin.">
-          <el-button type="primary" @click="activeTab = 'overview'">Go to Fetch Panel</el-button>
-        </el-empty>
-        <el-tabs v-model="activeTab" v-show="activeTab === 'overview'">
-           <el-tab-pane label="Overview" name="overview">
-             <FetchPanel @refresh="loadStats" />
-           </el-tab-pane>
-        </el-tabs>
-      </div>
       <el-tabs v-else v-model="activeTab">
         <el-tab-pane label="Overview" name="overview">
           <FetchPanel @refresh="loadStats" />
-          <MetricsGrid :stats="stats" />
+          <el-empty v-if="stats.total === 0" description="No data collected yet. Fetch plugins above to begin." />
+          <MetricsGrid v-else :stats="stats" />
         </el-tab-pane>
-        <el-tab-pane label="Visualizations" name="visualizations">
+        <el-tab-pane label="Visualizations" name="visualizations" :disabled="stats.total === 0">
           <ChartsGrid />
         </el-tab-pane>
-        <el-tab-pane label="Data Table" name="data-table">
+        <el-tab-pane label="Data Table" name="data-table" :disabled="stats.total === 0">
           <PluginTable />
         </el-tab-pane>
-        <el-tab-pane label="Research Insights" name="insights">
+        <el-tab-pane label="Research Insights" name="insights" :disabled="stats.total === 0">
           <InsightsPanel :stats="stats" />
         </el-tab-pane>
-        <el-tab-pane label="Export" name="export">
+        <el-tab-pane label="Export" name="export" :disabled="stats.total === 0">
           <ExportPanel />
         </el-tab-pane>
       </el-tabs>

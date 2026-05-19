@@ -66,8 +66,8 @@
         :percentage="progressPercentage" 
         :status="progressStatus"
         :stroke-width="15" 
-        striped 
-        striped-flow 
+        :striped="status === 'running'" 
+        :striped-flow="status === 'running'" 
       />
       <div class="status-message" :class="{'error-text': status === 'error', 'success-text': status === 'complete'}">
         {{ statusMessage }}
@@ -117,7 +117,7 @@ const fetchNextPage = async () => {
     progress.value.fetched = data.fetched
     progress.value.total = fetchCount.value
     
-    if (currentPage.value >= totalPages.value) {
+    if (data.is_complete || currentPage.value >= totalPages.value) {
       status.value = 'complete'
       statusMessage.value = 'Fetch completed successfully'
       isResumable.value = false
