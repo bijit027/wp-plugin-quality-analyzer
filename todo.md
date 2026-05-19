@@ -10,10 +10,10 @@
   - [x] Implement `fetch_plugins` method
   - [x] Implement `process_and_save` method
 
-- [ ] **CHUNK 3:** Plugin Health Score Calculator
-  - [ ] Create `includes/class-health-score.php`
-  - [ ] Implement PHS formula (Update, Rating, Resolution, Response scores)
-  - [ ] Implement abandonment threshold logic
+- [x] **CHUNK 3:** Plugin Health Score Calculator
+  - [x] Create `includes/class-health-score.php`
+  - [x] Implement PHS formula (Update, Rating, Resolution, Response scores)
+  - [x] Implement abandonment threshold logic
 
 - [ ] **CHUNK 4:** WordPress REST API Endpoints
   - [ ] Create `includes/class-rest-api.php`
