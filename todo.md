@@ -44,9 +44,9 @@
   - [x] Build `src/components/HealthScoreChart.vue`
   - [x] Build `src/components/PluginTable.vue`
 
-- [ ] **CHUNK 8:** Research Insights, Export, and Final Polish
-  - [ ] Build `src/components/InsightsPanel.vue`
-  - [ ] Build `src/components/ExportPanel.vue`
-  - [ ] Add Admin CSS styles in `assets/css/admin.css`
-  - [ ] Write final `readme.txt`
-  - [ ] Final build compilation via `npm run build`
+- [x] **CHUNK 8:** Research Insights, Export, and Final Polish
+  - [x] Build `src/components/InsightsPanel.vue`
+  - [x] Build `src/components/ExportPanel.vue`
+  - [x] Add Admin CSS styles in `assets/css/admin.css`
+  - [x] Write final `readme.txt`
+  - [x] Final build compilation via `npm run build`
