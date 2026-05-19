@@ -35,14 +35,14 @@
   - [x] Build `src/components/FetchPanel.vue`
   - [x] Build `src/components/MetricsGrid.vue`
 
-- [ ] **CHUNK 7:** Charts and Data Table
-  - [ ] Set up Global ChartJS config in `src/main.js`
-  - [ ] Build `src/components/RatingChart.vue`
-  - [ ] Build `src/components/AbandonmentChart.vue`
-  - [ ] Build `src/components/UpdateFrequencyChart.vue`
-  - [ ] Build `src/components/SupportChart.vue`
-  - [ ] Build `src/components/HealthScoreChart.vue`
-  - [ ] Build `src/components/PluginTable.vue`
+- [x] **CHUNK 7:** Charts and Data Table
+  - [x] Set up Global ChartJS config in `src/main.js`
+  - [x] Build `src/components/RatingChart.vue`
+  - [x] Build `src/components/AbandonmentChart.vue`
+  - [x] Build `src/components/UpdateFrequencyChart.vue`
+  - [x] Build `src/components/SupportChart.vue`
+  - [x] Build `src/components/HealthScoreChart.vue`
+  - [x] Build `src/components/PluginTable.vue`
 
 - [ ] **CHUNK 8:** Research Insights, Export, and Final Polish
   - [ ] Build `src/components/InsightsPanel.vue`
