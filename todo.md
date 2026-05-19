@@ -5,10 +5,10 @@
   - [x] Database file: `includes/class-database.php`
   - [x] Create `WPPQA_Database::create_tables()`
 
-- [ ] **CHUNK 2:** WordPress.org API Fetcher
-  - [ ] Create `includes/class-api-fetcher.php`
-  - [ ] Implement `fetch_plugins` method
-  - [ ] Implement `process_and_save` method
+- [x] **CHUNK 2:** WordPress.org API Fetcher
+  - [x] Create `includes/class-api-fetcher.php`
+  - [x] Implement `fetch_plugins` method
+  - [x] Implement `process_and_save` method
 
 - [ ] **CHUNK 3:** Plugin Health Score Calculator
   - [ ] Create `includes/class-health-score.php`
