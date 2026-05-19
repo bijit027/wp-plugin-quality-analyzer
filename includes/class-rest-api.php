@@ -45,6 +45,12 @@ class WPPQA_REST_API {
 			'callback'            => [ $this, 'endpoint_clear' ],
 			'permission_callback' => [ $this, 'check_permission' ],
 		] );
+
+		register_rest_route( $this->namespace, '/statistics', [
+			'methods'             => 'GET',
+			'callback'            => [ $this, 'endpoint_statistics' ],
+			'permission_callback' => [ $this, 'check_permission' ],
+		] );
 	}
 
 	public function check_permission() {
@@ -236,5 +242,13 @@ class WPPQA_REST_API {
 			'success' => true,
 			'message' => 'All data cleared'
 		] );
+	}
+
+	public function endpoint_statistics() {
+		$data = WPPQA_Statistics::calculate_research_metrics();
+		if ( !$data ) {
+			return new WP_Error( 'no_data', 'No plugin data collected yet.', [ 'status' => 404 ] );
+		}
+		return rest_ensure_response( $data );
 	}
 }
