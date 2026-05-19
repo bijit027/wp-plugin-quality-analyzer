@@ -23,6 +23,8 @@
         <el-tab-pane label="Overview" name="overview">
           <FetchPanel @refresh="loadStats" />
           <MetricsGrid :stats="stats" />
+        </el-tab-pane>
+        <el-tab-pane label="Visualizations" name="visualizations">
           <ChartsGrid />
         </el-tab-pane>
         <el-tab-pane label="Data Table" name="data-table">
