@@ -92,14 +92,47 @@
         </el-col>
       </el-row>
 
+      <!-- NEW SECTION: Visual Empirical Graphs -->
+      <h3 class="section-title">II. Visual Empirical Graphs & Modeling</h3>
+      <el-row :gutter="20" class="visuals-row">
+        <el-col :span="12">
+          <el-card class="glass-card chart-card" shadow="hover">
+            <template #header>
+              <div class="card-header">
+                <span class="title">Empirical Correlation Strength Map</span>
+                <span class="subtitle">Side-by-Side Pearson r vs Spearman ρ Coefficients</span>
+              </div>
+            </template>
+            <div class="chart-container">
+              <Bar v-if="correlationChartData" :data="correlationChartData" :options="correlationChartOptions" />
+            </div>
+          </el-card>
+        </el-col>
+
+        <el-col :span="12">
+          <el-card class="glass-card chart-card" shadow="hover">
+            <template #header>
+              <div class="card-header">
+                <span class="title">OLS Predictor Impact Factors (Beta Weights)</span>
+                <span class="subtitle">Relative Direct Influence Magnitude and Sign on Plugin Health Score</span>
+              </div>
+            </template>
+            <div class="chart-container">
+              <Bar v-if="regressionChartData" :data="regressionChartData" :options="regressionChartOptions" />
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+
       <!-- Correlation & Regression Split Tabular Section -->
+      <h3 class="section-title">III. Detailed Tabular Analysis Models</h3>
       <el-row :gutter="20" class="tabular-section-row">
         <el-col :span="12">
           <el-card class="glass-card table-card" shadow="hover">
             <template #header>
               <div class="card-header">
-                <span class="title">II. Correlation Analysis Matrix</span>
-                <span class="subtitle">Pearson & Spearman (Rank) Coefficients</span>
+                <span class="title">Correlation Matrix Details</span>
+                <span class="subtitle">Pearson & Spearman (Rank) Coefficients Table</span>
               </div>
             </template>
             <el-table :data="correlationTableData" style="width: 100%" stripe class="premium-table">
@@ -134,7 +167,7 @@
           <el-card class="glass-card table-card" shadow="hover">
             <template #header>
               <div class="card-header">
-                <span class="title">III. OLS Multiple Linear Regression Model</span>
+                <span class="title">OLS Linear Regression Solver Details</span>
                 <span class="subtitle">Predictor Coefficients for Plugin Health Score</span>
               </div>
             </template>
@@ -271,6 +304,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { getStatistics } from '../utils/api'
 import { ElMessage } from 'element-plus'
+import { Bar } from 'vue-chartjs'
 
 const loading = ref(true)
 const statisticsData = ref(null)
@@ -320,6 +354,129 @@ const getHypothesisClass = (res) => {
   if (res.includes('SUPPORTED')) return 'hyp-success'
   if (res.includes('REJECTED')) return 'hyp-danger'
   return ''
+}
+
+// ----------------------------------------------------
+// NEW COMPUTED CHART DATA
+// ----------------------------------------------------
+
+const correlationChartData = computed(() => {
+  if (!statisticsData.value) return null
+  const corrs = statisticsData.value.correlations
+  return {
+    labels: [
+      'Rating vs Days',
+      'Rating vs Support',
+      'Health vs Support',
+      'Health vs Recency',
+      'Installs vs Health',
+      'Rating vs Installs'
+    ],
+    datasets: [
+      {
+        label: 'Pearson r',
+        backgroundColor: 'rgba(64, 158, 255, 0.85)',
+        hoverBackgroundColor: '#409EFF',
+        data: [
+          corrs.rating_vs_days.pearson,
+          corrs.rating_vs_res.pearson,
+          corrs.health_vs_res.pearson,
+          corrs.health_vs_recency.pearson,
+          corrs.installs_vs_health.pearson,
+          corrs.rating_vs_installs.pearson
+        ]
+      },
+      {
+        label: 'Spearman ρ',
+        backgroundColor: 'rgba(103, 194, 58, 0.85)',
+        hoverBackgroundColor: '#67C23A',
+        data: [
+          corrs.rating_vs_days.spearman,
+          corrs.rating_vs_res.spearman,
+          corrs.health_vs_res.spearman,
+          corrs.health_vs_recency.spearman,
+          corrs.installs_vs_health.spearman,
+          corrs.rating_vs_installs.spearman
+        ]
+      }
+    ]
+  }
+})
+
+const correlationChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'bottom',
+      labels: {
+        color: '#606266',
+        font: { size: 11, weight: 'bold' }
+      }
+    },
+    tooltip: {
+      callbacks: {
+        label: (context) => `${context.dataset.label}: ${context.raw.toFixed(4)}`
+      }
+    }
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      ticks: { color: '#606266', font: { size: 10 } }
+    },
+    y: {
+      title: { display: true, text: 'Coefficients Range [-1.0 to 1.0]', color: '#606266' },
+      min: -1.0,
+      max: 1.0,
+      grid: { color: 'rgba(0,0,0,0.06)' },
+      ticks: { color: '#606266' }
+    }
+  }
+}
+
+const regressionChartData = computed(() => {
+  if (!statisticsData.value || !statisticsData.value.regression) return null
+  // Show predictor parameters excluding the intercept baseline
+  const coefs = statisticsData.value.regression.coefficients.filter(c => c.variable !== 'Intercept (Constant)')
+  return {
+    labels: coefs.map(c => c.variable.split(' (')[0]), // Truncate details for chart labels
+    datasets: [
+      {
+        label: 'Beta Coefficient (β)',
+        backgroundColor: coefs.map(c => c.val >= 0 ? 'rgba(103, 194, 58, 0.7)' : 'rgba(245, 108, 108, 0.7)'),
+        borderColor: coefs.map(c => c.val >= 0 ? '#67C23A' : '#F56C6C'),
+        borderWidth: 1.5,
+        hoverBackgroundColor: coefs.map(c => c.val >= 0 ? '#67C23A' : '#F56C6C'),
+        data: coefs.map(c => c.val)
+      }
+    ]
+  }
+})
+
+const regressionChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  indexAxis: 'y', // Horizontal Layout
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: (context) => `Direct Impact Weight (β): ${context.raw.toFixed(4)}`
+      }
+    }
+  },
+  scales: {
+    x: {
+      title: { display: true, text: 'Impact Direction & Magnitude', color: '#606266' },
+      grid: { color: 'rgba(0,0,0,0.06)' },
+      ticks: { color: '#606266' }
+    },
+    y: {
+      grid: { display: false },
+      ticks: { color: '#606266', font: { size: 10, weight: 'bold' } }
+    }
+  }
 }
 
 // ----------------------------------------------------
@@ -606,6 +763,32 @@ onMounted(async () => {
 .hyp-danger {
   border-left: 5px solid #F56C6C;
   background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(245, 108, 108, 0.03) 100%);
+}
+
+/* Visuals Section Layout */
+.visuals-row {
+  margin-bottom: 25px;
+}
+.chart-card {
+  border-radius: 12px;
+}
+.chart-card .card-header {
+  display: flex;
+  flex-direction: column;
+}
+.chart-card .card-header .title {
+  font-size: 15px;
+  font-weight: bold;
+  color: #303133;
+}
+.chart-card .card-header .subtitle {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
+}
+.chart-container {
+  height: 280px;
+  position: relative;
 }
 
 .tabular-section-row {
