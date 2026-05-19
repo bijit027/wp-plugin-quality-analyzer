@@ -15,21 +15,21 @@
   - [x] Implement PHS formula (Update, Rating, Resolution, Response scores)
   - [x] Implement abandonment threshold logic
 
-- [ ] **CHUNK 4:** WordPress REST API Endpoints
-  - [ ] Create `includes/class-rest-api.php`
-  - [ ] Implement `/fetch` endpoint
-  - [ ] Implement `/status` endpoint
-  - [ ] Implement `/stats` endpoint
-  - [ ] Implement `/chart-data` endpoint
-  - [ ] Implement `/export` endpoint
-  - [ ] Implement `/clear` endpoint
+- [x] **CHUNK 4:** WordPress REST API Endpoints
+  - [x] Create `includes/class-rest-api.php`
+  - [x] Implement `/fetch` endpoint
+  - [x] Implement `/status` endpoint
+  - [x] Implement `/stats` endpoint
+  - [x] Implement `/chart-data` endpoint
+  - [x] Implement `/export` endpoint
+  - [x] Implement `/clear` endpoint
 
-- [ ] **CHUNK 5:** Vue 3 + Element Plus Setup and Dashboard Shell
-  - [ ] Set up `package.json` and `vite.config.js`
-  - [ ] Create `src/utils/api.js` for Axios calls
-  - [ ] Set up Vue 3 application in `src/main.js`
-  - [ ] Create Main Dashboard Shell in `src/App.vue`
-  - [ ] Register admin menu and enqueue Vite scripts in `includes/class-admin-pages.php`
+- [x] **CHUNK 5:** Vue 3 + Element Plus Setup and Dashboard Shell
+  - [x] Set up `package.json` and `vite.config.js`
+  - [x] Create `src/utils/api.js` for Axios calls
+  - [x] Set up Vue 3 application in `src/main.js`
+  - [x] Create Main Dashboard Shell in `src/App.vue`
+  - [x] Register admin menu and enqueue Vite scripts in `includes/class-admin-pages.php`
 
 - [ ] **CHUNK 6:** Fetch Panel and Data Collection UI
   - [ ] Build `src/components/FetchPanel.vue`
