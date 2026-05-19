@@ -16,6 +16,8 @@
             <el-option label="100" :value="100" />
             <el-option label="200" :value="200" />
             <el-option label="500" :value="500" />
+            <el-option label="1000" :value="1000" />
+            <el-option label="5000" :value="5000" />
           </el-select>
         </el-form-item>
         <el-form-item label="Browse by">
